@@ -3,11 +3,11 @@ from typing import List, Union
 
 from sympy import simplify, symbols, pi, Expr, Symbol, cos, sin
 
-from robot import Robot, JointType
+from robot import Robot, JointType, RotationalJoint, PrismaticJoint, Joint
 from math_utils import Vector, Matrix
 
 t1, t2 = symbols('theta1 theta2')
-l1 = symbols('l1')
+l1, d1 = symbols('l1 d1')
 
 
 @pytest.mark.parametrize(
@@ -87,3 +87,24 @@ def test_vector_mat_matrix(matrix: List[List[Union[Expr, int, Symbol]]], vector:
     assert desired_vec1 == vec1
     desired_vec2 = Vector(desired2)
     assert desired_vec2 == vec2
+
+@pytest.mark.parametrize(
+    ('joint'),
+    [
+        RotationalJoint(0, 0, 0, t1, t1, 1),
+        RotationalJoint(0, pi/2, 0, t1, t1, 1),
+        RotationalJoint(0, pi/2, d1, 0, t1, 1)
+    ]
+)
+def test_mat_inv(joint: Joint):
+    trans_matrix = joint.get_transformation()
+    rot_matrix = joint.get_rotation()
+
+    desired_mat_rot = Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], True, False)
+    desired_mat_trans = Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], False, False)
+
+    assert trans_matrix @ trans_matrix.inv() == desired_mat_trans
+    assert rot_matrix @ rot_matrix.inv() == desired_mat_rot
+
+    assert trans_matrix.inv() @ trans_matrix == desired_mat_trans
+    assert rot_matrix.inv() @ rot_matrix == desired_mat_rot

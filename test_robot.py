@@ -19,7 +19,8 @@ d_t1, d_t2 = symbols('dot_t1 dot_t2')
         (
                 [
                     [0, 0, 0, t1],
-                    [l1, pi / 2, 0, t2]
+                    [l1, pi / 2, 0, t2],
+                    [0, 0, 0, 0]
                 ],
                 [
                     [0, 0, 0],
@@ -39,7 +40,7 @@ def test_velocity_cal_rot(dh: List[List[Union[Expr, int, Symbol]]], desired_v: L
     desired_v = [Vector(v_i) for v_i in desired_v]
 
     w, v = robot.joints[0].cal_velocities(None, None)
-    for i, joint in enumerate(robot.joints[1:]):
+    for i, joint in enumerate(robot.joints[1:-1]):
         w, v = joint.cal_velocities(w, v)
         assert w == desired_w[i]
         assert v == desired_v[i]

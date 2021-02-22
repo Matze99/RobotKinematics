@@ -269,6 +269,54 @@ class Matrix:
 
         return Matrix(new_entries, rotation, False)
 
+    def __neg__(self):
+        return self * -1
+
+    def __mul__(self, other):
+        if isinstance(other, float) or isinstance(other, int) or isinstance(other, Symbol) or isinstance(other, Expr):
+            new_entries = []
+            for i,row in enumerate(self._entries):
+                new_entries.append([])
+                for ele in row:
+                    new_entries[i].append(ele * other)
+            return Matrix(new_entries, self.is_rotation, self.is_identity)
+        else:
+            raise ValueError(f'Multiplication of matrix is not defined for type {type(other)}')
+
+    def get_translation(self) -> Vector:
+        '''
+        calculates the translation of the current matrix
+
+        :return:
+        '''
+        if self.is_rotation:
+            raise ValueError('rotation matrix does not have a translation')
+        else:
+            return self @ Vector([0, 0, 0, 1])
+
+
+    def inv(self):
+        '''
+        invert the matrix
+        :return:
+        '''
+        if self._is_rotation:
+            return self.T
+        else:
+            rot = self.rot
+            trans = self.get_translation()
+
+            inv_rot = rot.T
+            inv_trans = -inv_rot @ trans.remove_last()
+
+            new_entries = [
+                [*inv_rot[0], inv_trans[0]],
+                [*inv_rot[1], inv_trans[1]],
+                [*inv_rot[2], inv_trans[2]],
+                [0, 0, 0, 1]
+            ]
+            return Matrix(new_entries, False, self.is_identity)
+
 class Vector:
     def __init__(self, entries: List[Union[Symbol, Float, Integer, Expr, int, float]]):
         self.entries = entries
