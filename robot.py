@@ -46,6 +46,8 @@ class Robot:
         :param index: frame of vector
         :return: rotated vector
         '''
+        if index == 0:
+            return vector
         assert len(vector) == 3
         rot = Matrix(None, True, True)
         for joint in self.joints[1:index+1]:

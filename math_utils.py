@@ -6,6 +6,8 @@ from sympy import Symbol, Integer, Float, cos, sin, Expr, simplify
 
 class Matrix:
     '''
+    TODO update Matrix and vector to be numpy arrays
+
     Rotation- and Transformation Matrix class
 
     supports multiplications transformations and other nessesary behavior of rotation and transformation
@@ -283,6 +285,21 @@ class Matrix:
         else:
             raise ValueError(f'Multiplication of matrix is not defined for type {type(other)}')
 
+    def __pow__(self, power, modulo=None):
+        '''
+        elementwise power
+
+        :param power:
+        :param modulo:
+        :return:
+        '''
+        new_entries = []
+        for i, row in enumerate(self._entries):
+            new_entries.append([])
+            for ele in row:
+                new_entries[i].append(ele ** power)
+        return Matrix(new_entries, self.is_rotation, self.is_identity)
+
     def get_translation(self) -> Vector:
         '''
         calculates the translation of the current matrix
@@ -416,3 +433,23 @@ class Vector:
         for i, ele in enumerate(self.entries):
             new_entries.append(ele.subs(args))
         return Vector(new_entries)
+
+    def __pow__(self, power, modulo=None):
+        '''
+        elementwise power
+
+        :param power:
+        :param modulo:
+        :return:
+        '''
+        new_entries = []
+        for ele in self.entries:
+            new_entries.append(ele**power)
+        return Vector(new_entries)
+
+    def self_dot(self):
+        '''
+        multiplies each entry in the vector with itself and sums the multiplied entries up
+        :return: sum of multiplication
+        '''
+        return self @ self
