@@ -34,6 +34,8 @@ class Robot:
         :return: transformed vector
         '''
         assert len(vector) == 4
+        if index == 0:
+            return vector
         rot = Matrix(None, False, True)
         for joint in self.joints[1:index+1]:
             rot = rot @ joint.get_transformation()

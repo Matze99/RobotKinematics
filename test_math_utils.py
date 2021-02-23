@@ -1,6 +1,8 @@
 import pytest
 from typing import List, Union
 
+import numpy as np
+
 from sympy import simplify, symbols, pi, Expr, Symbol, cos, sin
 
 from robot import Robot, JointType, RotationalJoint, PrismaticJoint, Joint
@@ -53,7 +55,7 @@ def test_mat_mul(dh: List[List[Union[Expr, int, Symbol]]], true_entries: List[Li
     ]
 )
 def test_transpose(matrix: List[List[Union[Expr, int, Symbol]]]):
-    mat = Matrix(matrix)
+    mat = Matrix(matrix, True)
 
     mat2 = mat.T.T
 
@@ -108,3 +110,39 @@ def test_mat_inv(joint: Joint):
 
     assert trans_matrix.inv() @ trans_matrix == desired_mat_trans
     assert rot_matrix.inv() @ rot_matrix == desired_mat_rot
+
+@pytest.mark.parametrize(
+    ('vector1', 'vector2'),
+    [
+        (
+            Vector([1, 0, 2]),
+            Vector([2, 2, 0])
+        ),
+        (
+            Vector([2, 2, 0]),
+            Vector([2, 2, 0])
+        )
+    ]
+)
+def test_cross_product(vector1: Vector, vector2:Vector):
+    output = vector1 * vector2
+    desired = Vector(np.cross(vector1.entries, vector2.entries))
+    assert output == desired
+
+@pytest.mark.parametrize(
+    ('matrix', 'shape'),
+    [
+        (
+            Matrix(np.ones((1,2,3))),
+            (1,2,3)
+        ),
+        (
+                Matrix(np.random.rand(1, 2, 3)),
+                (1, 2, 3)
+        )
+    ]
+)
+def test_add(matrix: Matrix, shape):
+    result = matrix + (-matrix)
+    desired = Matrix(np.zeros(shape))
+    assert desired == result

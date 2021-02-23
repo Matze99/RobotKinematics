@@ -266,6 +266,61 @@ def test_cal_torque_force_joint_dynamic(joint: Joint, prev_f: Vector, prev_n: Ve
     assert f == desired_f
     assert n == desired_n
 
+
+@pytest.mark.parametrize(
+    ('robot', 'vector', 'desired', 'index'),
+    [
+        (
+                Robot.from_dh_parameters([
+                    [0, 0, l1, t1],
+                    [0, pi / 2, 0, t2],
+                    [0, pi / 2, l2 + d3, 0],
+                    [0, 0, 0, 0]
+                ], 'rrp'),
+                Vector([12, 21, 3, 1]),
+                Vector([12, 21, 3, 1]),
+                0
+        ),
+        (
+                Robot.from_dh_parameters([
+                    [0, 0, l1, t1],
+                    [0, pi / 2, 0, t2],
+                    [0, pi / 2, l2 + d3, 0],
+                    [0, 0, 0, 0]
+                ], 'rrp'),
+                Vector([0, 0, 0, 1]),
+                Vector([0, 0, l1, 1]),
+                1
+        ),
+        (
+                Robot.from_dh_parameters([
+                    [0, 0, l1, t1],
+                    [0, pi / 2, 0, t2],
+                    [0, pi / 2, l2 + d3, 0],
+                    [0, 0, 0, 0]
+                ], 'rrp'),
+                Vector([0, 0, 0, 1]),
+                Vector([0, 0, l1, 1]),
+                2
+        ),
+        (
+                Robot.from_dh_parameters([
+                    [0, 0, l1, t1],
+                    [0, pi / 2, 0, t2],
+                    [0, pi / 2, l2 + d3, 0],
+                    [0, 0, 0, 0]
+                ], 'rrp'),
+                Vector([0, 0, 0, 1]),
+                Vector([(d3 + l2)*sin(t2)*cos(t1),  (d3 + l2)*sin(t1)*sin(t2),  l1 - (d3 + l2)*cos(t2),  1]),
+                3
+        )
+    ]
+)
+def test_transform_to_zero_from_i(robot: Robot, vector: Vector, desired: Vector, index: int):
+    transformed_vec = robot.transform_to_zero_from_i(vector, index)
+    print(transformed_vec.simplify())
+    assert transformed_vec == desired
+
 #  TODO implement
 # unittest for get_transformations_from_zero
 # unittest for get_zero_Z_axis

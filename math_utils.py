@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import List, Union
 
+import numpy as np
+
 from sympy import Symbol, Integer, Float, cos, sin, Expr, simplify
 
 
@@ -18,11 +20,17 @@ class Matrix:
     :param is_identity: True if identity matrix
     '''
 
-    def __init__(self, entries: List[List[Union[Symbol, Float, Integer, Expr, float, int, None]]] = None,
+    def __init__(self, entries: Union[List[List[Union[Symbol, Float, Integer, Expr, float, int, None]]], np.ndarray] = None,
                  is_rotation: bool = False, is_identity: bool = False):
-        self._entries: List[List[Union[Symbol, Float, Integer, float, int]]] = entries
+        self._entries: np.ndarray = np.array(entries)
         self._is_rotation: bool = is_rotation
         self._is_identity: bool = is_identity
+        if is_rotation and not is_identity:
+            # TODO check validity
+            pass
+        elif is_identity:
+            # TODO check velidity
+            pass
 
     @staticmethod
     def transformation_from_joint(joint) -> Matrix:
@@ -73,12 +81,12 @@ class Matrix:
         return Matrix(entries, is_rotation=True, is_identity=False)
 
     @property
-    def entries(self) -> List[List[Union[Symbol, Float, Integer, Expr, float, int]]]:
+    def entries(self) -> np.ndarray:
         return self._entries
 
     @entries.setter
     def entries(self, entries: List[List[Union[Symbol, Float, Integer, Expr, float, int]]]):
-        self._entries = entries
+        self._entries = np.array(entries)
 
     @property
     def is_rotation(self) -> bool:
@@ -189,11 +197,8 @@ class Matrix:
         elif self._is_rotation != other.is_rotation:
             return False
         else:
-            for i, row in enumerate(self._entries):
-                for j, ele in enumerate(row):
-                    if simplify(ele-other[i][j]) != 0:
-                        return False
-            return True
+            return simplify(np.sum(self._entries-other.entries)) == 0
+
 
     @property
     def rot(self) -> Matrix:
@@ -213,12 +218,7 @@ class Matrix:
     def __add__(self, other: Matrix) -> Matrix:
         assert isinstance(other, Matrix)
         assert other.is_rotation == self._is_rotation
-        new_entries = []
-
-        for i, row in enumerate(self._entries):
-            new_entries.append([])
-            for j, ele in enumerate(row):
-                new_entries[-1].append(ele + other[i][j])
+        new_entries = self._entries + other.entries
 
         return Matrix(new_entries)
 
@@ -276,11 +276,7 @@ class Matrix:
 
     def __mul__(self, other):
         if isinstance(other, float) or isinstance(other, int) or isinstance(other, Symbol) or isinstance(other, Expr):
-            new_entries = []
-            for i,row in enumerate(self._entries):
-                new_entries.append([])
-                for ele in row:
-                    new_entries[i].append(ele * other)
+            new_entries = self._entries * other
             return Matrix(new_entries, self.is_rotation, self.is_identity)
         else:
             raise ValueError(f'Multiplication of matrix is not defined for type {type(other)}')
@@ -293,11 +289,7 @@ class Matrix:
         :param modulo:
         :return:
         '''
-        new_entries = []
-        for i, row in enumerate(self._entries):
-            new_entries.append([])
-            for ele in row:
-                new_entries[i].append(ele ** power)
+        new_entries = self._entries ** 2
         return Matrix(new_entries, self.is_rotation, self.is_identity)
 
     def get_translation(self) -> Vector:
@@ -335,8 +327,8 @@ class Matrix:
             return Matrix(new_entries, False, self.is_identity)
 
 class Vector:
-    def __init__(self, entries: List[Union[Symbol, Float, Integer, Expr, int, float]]):
-        self.entries = entries
+    def __init__(self, entries: Union[List[Union[Symbol, Float, Integer, Expr, int, float]], np.ndarray]):
+        self.entries = np.array(entries)
 
     def __getitem__(self, item) -> Union[Symbol, Float, Integer, Expr, int, float]:
         return self.entries[item]
@@ -356,9 +348,7 @@ class Vector:
             return Vector(new_entries)
 
         else:
-            new_entries = []
-            for i in range(self.__len__()):
-                new_entries.append(self.entries[i]*other)
+            new_entries = self.entries * other
 
             return Vector(new_entries)
 
@@ -368,9 +358,7 @@ class Vector:
         assert isinstance(other, Vector)
         assert len(other) == self.__len__()
 
-        value = Integer(0)
-        for i in range(self.__len__()):
-            value += self.entries[i] * other[i]
+        value = self.entries @ other.entries
         return value
 
     def __eq__(self, other) -> bool:
@@ -379,18 +367,13 @@ class Vector:
         elif len(other) != len(self):
             return False
         else:
-            for i, ele in enumerate(self.entries):
-                if simplify(ele-other[i]) != 0:
-                    return False
-            return True
+            return simplify(np.sum(self.entries - other.entries)) == 0
 
     def __add__(self, other: Vector) -> Vector:
         assert isinstance(other, Vector)
         assert len(other) == len(self)
 
-        new_entries = []
-        for i, ele in enumerate(self.entries):
-            new_entries.append(ele + other[i])
+        new_entries = self.entries + other.entries
 
         return Vector(new_entries)
 
@@ -442,9 +425,7 @@ class Vector:
         :param modulo:
         :return:
         '''
-        new_entries = []
-        for ele in self.entries:
-            new_entries.append(ele**power)
+        new_entries = self.entries**power
         return Vector(new_entries)
 
     def self_dot(self):
