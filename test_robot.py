@@ -220,48 +220,32 @@ d, e, f = symbols('d e f')
     [
         (
                 RotationalJoint(0, 0, 0, t1, t1, 1), #joint
-                # Vector([m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0,
-                #         m2 * (l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(t1) + ddot_d2)]), #pre f
                 Vector([a, b, c]),
-                # Vector([0, 0, 0]),
-                # Vector(
-                #     [0, -Iyy2 * dd_t1 + m2 * l2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0]), #Pre n
                 Vector([0, 0, 0]),
-                # Vector([m1 * (-l1 / 2 * d_t1 ** 2 + g * cos(t1)), m1 * (l1 / 2 * dd_t1 - g * sin(t1)), 0]), #F
                 Vector([d, e, f]),
-                # Vector([0, 0, dd_t1 * Izz1]), #N
                 Vector([0, 0, 0]),
                 Vector([l1 / 2, 0, 0]), #cof
-                Vector([m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2)* cos(t1) + m1 * (-l1 / 2 * d_t1 ** 2 + g * cos(t1)),
-                        m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2)* sin(t1) + m1 * (l1 / 2 * dd_t1 - g * sin(t1)),
-                        m2 * (l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(t1) + ddot_d2)]), #f_g
-                # Vector([m1 * (-l1 / 2 * d_t1 ** 2 + g * cos(t1)), m1 * (l1 / 2 * dd_t1 - g * sin(t1)), 0]),
-                # Vector([0, 0, -(-Iyy2 * dd_t1 + m2 * l2 * (
-                #         -d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2)) - d2 * (
-                #                 m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2)) + l1 * (m2 * (
-                #         l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(
-                #     t1) + ddot_d2)) + Izz1 * dd_t1 + m1 * l1 ** 2 / 4 * dd_t1 - g * m1 * l1 / 2 * sin(t1)]), #n_g
+                Vector([	a*cos(t1) - b*sin(t1) + d,  a*sin(t1) + b*cos(t1) + e,  c + f,  ]),
                 Vector([d2 * c, -l1*c - f*l1/2, l1/2*e+ l1*(sin(t1)*a+cos(t1)*b)-d2*(cos(t1)*a-sin(t1)*b)]),
-                # Vector([0, 0, l1/2 * (m1 * (l1 / 2 * dd_t1 - g * sin(t1)))]).simplify(),
                 Matrix([[1, 0, 0], [0, 0, 1], [0, -1, 0]], True), # rot
                 Vector([l1, d2, 0]) #p
         ),
-        # (
-        #         PrismaticJoint(l1, -pi / 2, d2, 0, d2, 2),
-        #         Vector([0, 0, 0]),
-        #         Vector([0, 0, 0]),
-        #         Vector([m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0,
-        #                 m2 * (l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(t1) + ddot_d2)]),
-        #         Vector([0, -Iyy2 * dd_t1, 0]),
-        #         Vector([0, 0, l2]),
-        #         Vector([m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0,
-        #                 m2 * (l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(t1) + ddot_d2)]),
-        #         Vector(
-        #             [0, -Iyy2 * dd_t1 + m2 * l2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0]),
-        #         Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], True),
-        #         Vector([0, 0, 0])
-        #
-        # ),
+        (
+                PrismaticJoint(l1, -pi / 2, d2, 0, d2, 2),
+                Vector([0, 0, 0]),
+                Vector([0, 0, 0]),
+                Vector([m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0,
+                        m2 * (l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(t1) + ddot_d2)]),
+                Vector([0, -Iyy2 * dd_t1, 0]),
+                Vector([0, 0, l2]),
+                Vector([m2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0,
+                        m2 * (l1 * dd_t1 - d2 * d_t1 ** 2 - g * sin(t1) + ddot_d2)]),
+                Vector(
+                    [0, -Iyy2 * dd_t1 + m2 * l2 * (-d2 * dd_t1 - l1 * d_t1 ** 2 + g * cos(t1) - 2 * d_t1 * dot_d2), 0]),
+                Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], True),
+                Vector([0, 0, 0])
+
+        ),
     ]
 )
 def test_cal_torque_force_joint_dynamic(joint: Joint, prev_f: Vector, prev_n: Vector, F: Vector, N: Vector, cof: Vector,
@@ -269,17 +253,8 @@ def test_cal_torque_force_joint_dynamic(joint: Joint, prev_f: Vector, prev_n: Ve
     joint.cof = cof
 
     f, n, next_rot, next_p = joint.cal_force_torque_joint_dynamic(prev_f, F, prev_n, N, rot, p)
-    print(next_rot)
-    print(p)
 
-    print(n[2])
-    print(desired_n[2])
-    # assert False
-    # assert f == desired_f
-
-    # from sympy import simplify
-    # assert simplify(n[2]-desired_n[2]) == 0
-    # TODO fix test
+    assert f == desired_f
     assert n == desired_n
 
 
