@@ -34,6 +34,8 @@ class Robot:
         :return: transformed vector
         '''
         assert len(vector) == 4
+        if index == 0:
+            return vector
         rot = Matrix(None, False, True)
         for joint in self.joints[1:index+1]:
             rot = rot @ joint.get_transformation()
@@ -368,6 +370,9 @@ class Robot:
         string += ']'
         return string
 
+    def __repr__(self):
+        return self.__str__()
+
 class Joint(ABC):
     '''
     Joint base class
@@ -572,9 +577,14 @@ class Joint(ABC):
 
         p = (trans @ Vector([0, 0, 0, 1])).remove_last()
 
-        f = pre_rot @ prev_f + F
-        n = pre_rot @ prev_n + N + self._cof * F + pre_p * (pre_rot @ prev_f)
-        return f,n, rot, p
+        # f = pre_rot @ prev_f + F
+        # n = pre_rot @ prev_n + N + self._cof * F + pre_p * (pre_rot @ prev_f)
+        f = rot @ prev_f + F
+        n = rot @ prev_n + N + self._cof * F + pre_p * (rot @ prev_f)
+        return f, n, rot, p
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class BaseJoint(Joint):
