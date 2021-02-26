@@ -216,11 +216,18 @@ class Matrix:
             return Matrix(new_entries, is_rotation=True, is_identity=self._is_identity)
 
     def __add__(self, other: Matrix) -> Matrix:
-        assert isinstance(other, Matrix)
-        assert other.is_rotation == self._is_rotation
-        new_entries = self._entries + other.entries
+        if isinstance(other, float) or isinstance(other, int):
+            new_entries = self.entries + other
+        elif isinstance(other, Matrix):
+            assert other.is_rotation == self._is_rotation
+            new_entries = self._entries + other.entries
+        else:
+            raise ValueError(f'Matrix addition is not implemented for type {type(other)}')
 
-        return Matrix(new_entries)
+        return Matrix(new_entries, self.is_rotation)
+
+    def __radd__(self, other):
+        return self.__add__(other)
 
     def simplify(self) -> Matrix:
         '''
@@ -281,6 +288,9 @@ class Matrix:
         else:
             raise ValueError(f'Multiplication of matrix is not defined for type {type(other)}')
 
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
     def __pow__(self, power, modulo=None):
         '''
         elementwise power
@@ -326,6 +336,9 @@ class Matrix:
             ]
             return Matrix(new_entries, False, self.is_identity)
 
+    def __repr__(self):
+        return self.__str__()
+
 class Vector:
     def __init__(self, entries: Union[List[Union[Symbol, Float, Integer, Expr, int, float]], np.ndarray]):
         self.entries = np.array(entries)
@@ -352,14 +365,20 @@ class Vector:
 
             return Vector(new_entries)
 
+    def __rmul__(self, other):
+        if isinstance(other, Vector):
+            return other.__mul__(self)
+        return self.__mul__(other)
+
     def __matmul__(self, other):
         if isinstance(other, Matrix):
             return other.T @ self
-        assert isinstance(other, Vector)
-        assert len(other) == self.__len__()
+        else:
+            assert isinstance(other, Vector)
+            assert len(other) == self.__len__()
 
-        value = self.entries @ other.entries
-        return value
+            value = self.entries @ other.entries
+            return value
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Vector):
@@ -370,12 +389,17 @@ class Vector:
             return simplify(np.sum(self.entries - other.entries)) == 0
 
     def __add__(self, other: Vector) -> Vector:
-        assert isinstance(other, Vector)
-        assert len(other) == len(self)
-
-        new_entries = self.entries + other.entries
-
+        if isinstance(other, int) or isinstance(other, float):
+            new_entries = self.entries + other
+        elif isinstance(other, Vector):
+            assert len(other) == len(self)
+            new_entries = self.entries + other.entries
+        else:
+            raise ValueError(f'Vector addition not implemented for type {type(other)}')
         return Vector(new_entries)
+
+    def __radd__(self, other):
+        return self.__add__(other)
 
     def remove_last(self) -> Vector:
         '''
@@ -434,3 +458,6 @@ class Vector:
         :return: sum of multiplication
         '''
         return self @ self
+
+    def __repr__(self):
+        return self.__str__()
